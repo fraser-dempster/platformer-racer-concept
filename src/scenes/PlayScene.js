@@ -97,9 +97,9 @@ class PlayScene extends Phaser.Scene {
 
       this.physics.add.collider(this.playerList[i], this.platforms);
       this.physics.add.collider(this.playerList[i], this.start);
-      this.platforms
-      this.playerList[i].body.checkCollision.bottom = true;
-      this.playerList[i].body.checkCollision.top = false;
+      // this.platforms
+      // this.playerList[i].body.checkCollision.bottom = true;
+      // this.playerList[i].body.checkCollision.top = false;
     }
 
     this.anims.create({

@@ -62,6 +62,8 @@ class PlayScene extends Phaser.Scene {
 
     // this.scale.displaySize.setAspectRatio( this.width/this.height );
     // this.scale.refresh();
+
+
     this.createBG();
     this.createPlatforms();
     this.createStartingPlatform();
@@ -96,6 +98,8 @@ class PlayScene extends Phaser.Scene {
       // this.playerList[i].body.checkCollision.bottom = true;
       // this.playerList[i].body.checkCollision.top = false;
     }
+    
+
 
     this.anims.create({
       key: 'left',
@@ -131,6 +135,9 @@ class PlayScene extends Phaser.Scene {
       }
     }
   }
+
+
+
   movement (playerController, player) {
     if (playerController.buttons['right'] == true) {
         player.setVelocityX(160);
@@ -154,7 +161,6 @@ class PlayScene extends Phaser.Scene {
       // this has to be last otherwise phaser messes up
       if (playerController.buttons['a'] && player.body.touching.down) {
         player.setVelocityY(-400);
-        console.log("jump equals true");
       }
   }
 
@@ -181,7 +187,10 @@ class PlayScene extends Phaser.Scene {
         .setImmovable(true)
         .setScale(0.5);
       platform.body.setAllowGravity(false);
-      // platform.body.checkCollision.bottom = false;
+      platform.body.checkCollision.left = false;
+      platform.body.checkCollision.right = false;
+      platform.body.checkCollision.down = false;
+      platform.body.checkCollision.top = true;
       // platform.body.checkCollision.top = true;
       // platform.body.checkCollision.left = false;
       // platform.body.checkCollision.right = false;
@@ -194,6 +203,7 @@ class PlayScene extends Phaser.Scene {
     this.start = this.physics.add.group();
     const first = this.start.create(400, 510, 'ground').setScale(6).setImmovable(true).refreshBody();
     first.body.setAllowGravity(false);
+    // first.body.checkCollision.top = false;
     this.start.setVelocityY(10);
   }
 

@@ -101,7 +101,8 @@ class PlayScene extends Phaser.Scene {
 
   createStartingPlatform() {
     this.start = this.physics.add.group();
-    this.start.create(this.width/2, 600, 'ground').setScale(2);
+    this.start.create(400, 510, 'ground').setScale(6);
+    this.start.setVelocityY(30);
   }
 
   placePlatform(platform) {

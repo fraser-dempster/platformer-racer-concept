@@ -25,8 +25,8 @@ const config = {
   },
   scale: {
     parent: 'qrcode',
-    mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
+    // mode: Phaser.Scale.FIT,
+    // autoCenter: Phaser.Scale.CENTER_BOTH,
     ...SHARED_CONFIG
   },
   scene: [new PlayScene(SHARED_CONFIG)]

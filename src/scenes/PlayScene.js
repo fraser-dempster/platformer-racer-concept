@@ -1,7 +1,6 @@
 import Phaser from "phaser";
 import 'smartcontroller';
 
-// all commented code is smartcontroller specific - not game specific
 var vertical = 0;
 var count = 0;
 const PLATFORMS_TO_RENDER = 20;
@@ -34,9 +33,6 @@ class PlayScene extends Phaser.Scene {
     
     this.gameEndCounter = 0;
     
-
-    
-    // need a set distance vetween the vertical placement of each platform - 60
   }
 
   preload() {
@@ -93,7 +89,6 @@ class PlayScene extends Phaser.Scene {
     this.player5.setTint(0xE389B9);
 
     for (let i = 0; i < this.playerList.length; i++) {
-      // platform.body.checkCollision.bottom = false;
 
       this.physics.add.collider(this.playerList[i], this.platforms);
       this.physics.add.collider(this.playerList[i], this.start);
@@ -128,7 +123,6 @@ class PlayScene extends Phaser.Scene {
     this.checkCollision();
     this.recyclePlatforms();
 
-
     if (this.scanned == true) {
       var controllerList = this.simplePeer.controllerList;
       var size = Object.keys(this.simplePeer.controllerList).length;
@@ -137,12 +131,6 @@ class PlayScene extends Phaser.Scene {
       }
     }
   }
-
-  // handlePlayerCollision(platforms, player) {
-  //   platforms.body
-    
-  // }
-
   movement (playerController, player) {
     if (playerController.buttons['right'] == true) {
         player.setVelocityX(160);
@@ -193,10 +181,10 @@ class PlayScene extends Phaser.Scene {
         .setImmovable(true)
         .setScale(0.5);
       platform.body.setAllowGravity(false);
-      platform.body.checkCollision.bottom = false;
-      platform.body.checkCollision.top = true;
-      platform.body.checkCollision.left = false;
-      platform.body.checkCollision.right = false;
+      // platform.body.checkCollision.bottom = false;
+      // platform.body.checkCollision.top = true;
+      // platform.body.checkCollision.left = false;
+      // platform.body.checkCollision.right = false;
       this.placePlatform(platform);
     }
     this.platforms.setVelocityY(100);

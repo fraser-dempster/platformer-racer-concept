@@ -33,6 +33,10 @@ class PlayScene extends Phaser.Scene {
 
     this.load.image('sky', 'assets/sky.png');
     this.load.image('ground', 'assets/platform.png');
+    this.load.spritesheet('dude', 
+      'assets/dude.png',
+      { frameWidth: 32, frameHeight: 48 }
+    );
 
   }
 
@@ -55,10 +59,33 @@ class PlayScene extends Phaser.Scene {
     this.createBG();
     this.createPlatforms();
     this.createStartingPlatform();
+
+    player = this.physics.add.sprite(400, 300, 'dude'); // loaded as sprite because it has animation frames
     // if (this.globalFlag == false) {
     //   this.createCode();
     //   this.globalFlag = true;
     // }
+
+
+    this.anims.create({
+      key: 'left',
+      frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
+      frameRate: 10,
+      repeat: -1
+    });
+
+    this.anims.create({
+        key: 'turn',
+        frames: [ { key: 'dude', frame: 4 } ],
+        frameRate: 20
+    });
+
+    this.anims.create({
+        key: 'right',
+        frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
+        frameRate: 10,
+        repeat: -1
+    });
   }
 
   update() {
@@ -86,14 +113,17 @@ class PlayScene extends Phaser.Scene {
 
   createPlatforms() {
     this.platforms = this.physics.add.group();
+    // this.platforms.body.setAllowGravity(false);
 
-
+    // this.platforms.body.setAllowGravity(false);
     for (let i = 0; i < PLATFORMS_TO_RENDER; i++) {
 
       const platform = this.platforms.create(0, 0, 'ground')
         .setImmovable(true)
+        
         // .setOrigin(0, 0)
         .setScale(0.5);
+      platform.body.setAllowGravity(false);
       this.placePlatform(platform);
     }
     this.platforms.setVelocityY(100);
@@ -101,7 +131,8 @@ class PlayScene extends Phaser.Scene {
 
   createStartingPlatform() {
     this.start = this.physics.add.group();
-    this.start.create(400, 510, 'ground').setScale(6);
+    const first = this.start.create(400, 510, 'ground').setScale(6).setImmovable(true);
+    first.body.setAllowGravity(false);
     this.start.setVelocityY(30);
   }
 

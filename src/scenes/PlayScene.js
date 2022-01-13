@@ -25,6 +25,16 @@ class PlayScene extends Phaser.Scene {
     // this.platformVerticalDistance = [-1000, vertical];
     this.previousPlatform = 0;
 
+    this.playerList = [];
+    this.player = null;
+    this.player2 = null;
+    this.player3 = null;
+    this.player4 = null;
+    this.player5 = null;
+    
+    this.gameEndCounter = 0;
+    
+
     
     // need a set distance vetween the vertical placement of each platform - 60
   }
@@ -59,13 +69,38 @@ class PlayScene extends Phaser.Scene {
     this.createBG();
     this.createPlatforms();
     this.createStartingPlatform();
+    if (this.globalFlag == false) {
+      this.createCode();
+      this.globalFlag = true;
+    }
 
-    player = this.physics.add.sprite(400, 300, 'dude'); // loaded as sprite because it has animation frames
-    // if (this.globalFlag == false) {
-    //   this.createCode();
-    //   this.globalFlag = true;
-    // }
+    this.player = this.physics.add.sprite(400, 300, 'dude'); // loaded as sprite because it has animation frames
+    this.player2 = this.physics.add.sprite(50, 300, 'dude'); // loaded as sprite because it has animation frames
+    this.player3 = this.physics.add.sprite(100, 300, 'dude'); // loaded as sprite because it has animation frames
+    this.player4 = this.physics.add.sprite(150, 300, 'dude'); // loaded as sprite because it has animation frames
+    this.player5 = this.physics.add.sprite(300, 300, 'dude'); // loaded as sprite because it has animation frames
 
+    this.playerList.push(this.player);
+    this.playerList.push(this.player2);
+    this.playerList.push(this.player3);
+    this.playerList.push(this.player4);
+    this.playerList.push(this.player5);
+
+    this.player.setTint(0xFF0000);
+    this.player2.setTint(0x746ab0);
+    this.player3.setTint(0x288ba8);
+    this.player4.setTint(0xffce30);
+    this.player5.setTint(0xE389B9);
+
+    for (let i = 0; i < this.playerList.length; i++) {
+      // platform.body.checkCollision.bottom = false;
+
+      this.physics.add.collider(this.playerList[i], this.platforms);
+      this.physics.add.collider(this.playerList[i], this.start);
+      this.platforms
+      this.playerList[i].body.checkCollision.bottom = true;
+      this.playerList[i].body.checkCollision.top = false;
+    }
 
     this.anims.create({
       key: 'left',
@@ -90,40 +125,78 @@ class PlayScene extends Phaser.Scene {
 
   update() {
 
+    this.checkCollision();
     this.recyclePlatforms();
-    // if (this.scanned == true) {
-    //   var controllerList = this.simplePeer.controllerList;
-    //   var size = Object.keys(this.simplePeer.controllerList).length;
-    //   for (let i = 0; i < size; i++) {
-    //     console.log(this.playerList[i].text);
-    //     if (controllerList[Object.keys(controllerList)[i]].buttons['a'] == true && i == 0) {
-    //       this.bird.body.velocity.y = -this.flapVelocity;
-    //     } else if (controllerList[Object.keys(controllerList)[i]].buttons['a'] == true && i == 1) {
-    //       this.secondBird.body.velocity.y = -this.flapVelocity;
-    //     } else if (controllerList[Object.keys(controllerList)[i]].buttons['a'] == true && i == 2) {
-    //       this.thirdBird.body.velocity.y = -this.flapVelocity;
-    //     }
-    //   }
-    // }
+
+
+    if (this.scanned == true) {
+      var controllerList = this.simplePeer.controllerList;
+      var size = Object.keys(this.simplePeer.controllerList).length;
+      for (let i = 0; i < size; i++) {
+        this.movement(controllerList[Object.keys(controllerList)[i]], this.playerList[i]);
+      }
+    }
   }
 
+  // handlePlayerCollision(platforms, player) {
+  //   platforms.body
+    
+  // }
+
+  movement (playerController, player) {
+    if (playerController.buttons['right'] == true) {
+        player.setVelocityX(160);
+        console.log("right equals true");
+
+        player.anims.play('right', true);
+      }
+      else if (playerController.buttons['left'] == true) {
+        player.body.velocity.x = -150;
+        console.log("left equals true");
+
+        player.anims.play('left', true);
+      }
+      else
+        {
+          player.setVelocityX(0);
+
+          player.anims.play('turn');
+        }
+      
+      // this has to be last otherwise phaser messes up
+      if (playerController.buttons['a'] && player.body.touching.down) {
+        player.setVelocityY(-400);
+        console.log("jump equals true");
+      }
+  }
+
+  checkCollision() {
+    for (let i = 0; i < this.playerList.length; i++) {
+      if (this.playerList[i].getBounds().bottom >= this.config.height) {
+        this.playerList[i].destroy();
+        this.gameEndCounter++;
+      }
+    }
+    if (this.gameEndCounter == 5) {
+      this.scene.stop();
+    }
+  }
   createBG() {
     this.add.image(0, 0, 'sky').setOrigin(0, 0);
   }
 
   createPlatforms() {
     this.platforms = this.physics.add.group();
-    // this.platforms.body.setAllowGravity(false);
 
-    // this.platforms.body.setAllowGravity(false);
     for (let i = 0; i < PLATFORMS_TO_RENDER; i++) {
-
       const platform = this.platforms.create(0, 0, 'ground')
         .setImmovable(true)
-        
-        // .setOrigin(0, 0)
         .setScale(0.5);
       platform.body.setAllowGravity(false);
+      platform.body.checkCollision.bottom = false;
+      platform.body.checkCollision.top = true;
+      platform.body.checkCollision.left = false;
+      platform.body.checkCollision.right = false;
       this.placePlatform(platform);
     }
     this.platforms.setVelocityY(100);
@@ -131,19 +204,16 @@ class PlayScene extends Phaser.Scene {
 
   createStartingPlatform() {
     this.start = this.physics.add.group();
-    const first = this.start.create(400, 510, 'ground').setScale(6).setImmovable(true);
+    const first = this.start.create(400, 510, 'ground').setScale(6).setImmovable(true).refreshBody();
     first.body.setAllowGravity(false);
-    this.start.setVelocityY(30);
+    this.start.setVelocityY(10);
   }
 
   placePlatform(platform) {
-
     count++;
     if (count % 15 == 0) {
-      debugger
       const highestY = this.getHighestPlatform()
       vertical = -highestY;
-
     }
     const platformVerticalDistance = vertical;
     this.incremementVertical();
@@ -178,7 +248,6 @@ class PlayScene extends Phaser.Scene {
     this.platforms.getChildren().forEach(function(platform) {
       highest = Math.max(platform.y, highest);
     })
-    // highest = 400;
     return highest;
   }
 
@@ -196,15 +265,15 @@ class PlayScene extends Phaser.Scene {
   }
 
 
-  // createCode() {
-  //   this.simplePeer = new smartcontroller.NesSmartController(); // the number 123456 is the controller id, if you leave it blank it's random so mutliple can use the website.
-  //   this.simplePeer.createQrCode('https://emmapoliakova.github.io/webpack-test/nesController.html', 'qrcode', 150, 150, '1');
-  //   var selfP = this;
-  //   this.simplePeer.on("connection", function(nes){ // this can also be outside the update loop that is a listener on it's own
-  //     this.controller = nes; 
-  //     selfP.scanned = true;
-  //   })
-  // }
+  createCode() {
+    this.simplePeer = new smartcontroller.NesSmartController(); // the number 123456 is the controller id, if you leave it blank it's random so mutliple can use the website.
+    this.simplePeer.createQrCode('https://emmapoliakova.github.io/webpack-test/nesController.html', 'qrcode', 150, 150, '1');
+    var selfP = this;
+    this.simplePeer.on("connection", function(nes){ // this can also be outside the update loop that is a listener on it's own
+      this.controller = nes; 
+      selfP.scanned = true;
+    })
+  }
 }
 
 export default PlayScene;

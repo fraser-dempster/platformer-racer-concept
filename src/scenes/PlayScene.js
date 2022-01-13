@@ -2,8 +2,9 @@ import Phaser from "phaser";
 import 'smartcontroller';
 
 // all commented code is smartcontroller specific - not game specific
-
-const PLATFORMS_TO_RENDER = 4;
+var vertical = 0;
+var count = 0;
+const PLATFORMS_TO_RENDER = 20;
 
 class PlayScene extends Phaser.Scene {
 
@@ -18,9 +19,14 @@ class PlayScene extends Phaser.Scene {
 
     this.platforms = null;
 
-    this.platformHorizontalDistance = [200, 600];
-    this.platformVerticalDistance = [50, 200];
+    this.platformHorizontalDistanceLeft = [60, 266];
+    this.platformHorizontalDistanceCentre = [266, 532];
+    this.platformHorizontalDistanceRight = [532, 740];
+    // this.platformVerticalDistance = [-1000, vertical];
+    this.previousPlatform = 0;
 
+    
+    // need a set distance vetween the vertical placement of each platform - 60
   }
 
   preload() {
@@ -48,6 +54,7 @@ class PlayScene extends Phaser.Scene {
     // this.scale.refresh();
     this.createBG();
     this.createPlatforms();
+    this.createStartingPlatform();
     // if (this.globalFlag == false) {
     //   this.createCode();
     //   this.globalFlag = true;
@@ -80,29 +87,64 @@ class PlayScene extends Phaser.Scene {
   createPlatforms() {
     this.platforms = this.physics.add.group();
 
+
     for (let i = 0; i < PLATFORMS_TO_RENDER; i++) {
-      const platform = this.platforms.create(200, 100, 'ground')
+
+      const platform = this.platforms.create(0, 0, 'ground')
         .setImmovable(true)
-        .setOrigin(0, 0);
+        // .setOrigin(0, 0)
+        .setScale(0.5);
       this.placePlatform(platform);
     }
     this.platforms.setVelocityY(100);
   }
 
+  createStartingPlatform() {
+    this.start = this.physics.add.group();
+    this.start.create(this.width/2, 600, 'ground').setScale(2);
+  }
+
   placePlatform(platform) {
-    const highestY = this.getHighestPlatform();
-    const platformVerticalDistance = Phaser.Math.Between(this.platformVerticalDistance[0], this.platformVerticalDistance[1]);
-    const platformVerticalPosition = Phaser.Math.Between(0 + 20, this.config.height - 20 - platformVerticalDistance);
-    const platformHorizontalDistance = Phaser.Math.Between(this.platformHorizontalDistance[0], this.platformHorizontalDistance[1]);
+
+    count++;
+    if (count % 15 == 0) {
+      debugger
+      const highestY = this.getHighestPlatform()
+      vertical = -highestY;
+
+    }
+    const platformVerticalDistance = vertical;
+    this.incremementVertical();
+    // const platformVerticalPosition = Phaser.Math.Between(0, -platformVerticalDistance);
+    var platformHorizontalDistance = 0;  Phaser.Math.Between(this.platformHorizontalDistanceLeft[0], this.platformHorizontalDistanceLeft[1]);
+    if (platform.x < this.platformHorizontalDistanceLeft[1]) { // on left side
+      platformHorizontalDistance = Phaser.Math.Between(this.platformHorizontalDistanceCentre[0], this.platformHorizontalDistanceRight[1]);
+    }
+    else if (platform.x > this.platformHorizontalDistanceRight[0]) { // on right side
+      platformHorizontalDistance = Phaser.Math.Between(this.platformHorizontalDistanceLeft[0], this.platformHorizontalDistanceCentre[1]);
+    }
+    else { // center
+      var random = Math.random();
+      if (random < 0.5) {
+        platformHorizontalDistance = Phaser.Math.Between(this.platformHorizontalDistanceLeft[0], this.platformHorizontalDistanceLeft[1]);
+      }
+      else {
+        platformHorizontalDistance = Phaser.Math.Between(this.platformHorizontalDistanceRight[0], this.platformHorizontalDistanceRight[1]);
+      }
+    }
     platform.y = platformVerticalDistance
     platform.x = platformHorizontalDistance;
+
+  }
+
+  incremementVertical() {
+    vertical -= 70;
   }
 
   getHighestPlatform() {
     let highest = 0;
     this.platforms.getChildren().forEach(function(platform) {
       highest = Math.max(platform.y, highest);
-
     })
     // highest = 400;
     return highest;
@@ -110,11 +152,9 @@ class PlayScene extends Phaser.Scene {
 
   recyclePlatforms() {
     const tempPlatforms = [];
-    
+
     this.platforms.getChildren().forEach(platform => {
       if (platform.getBounds().top > 600) {
-
-        console.log('hellooo');
         tempPlatforms.push(platform);
         if (tempPlatforms.length === 1) {
           this.placePlatform(...tempPlatforms);
